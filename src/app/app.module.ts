@@ -5,9 +5,10 @@ import { LoggerMiddleware } from '../common/middlewares/logger.middleware';
 import { configModule } from '../common/config/config.module';
 import { CommonModule } from '../common/common.module';
 import { AuthModule } from '../auth/auth.module';
+import { PartyModule } from '../party/party.module';
 
 @Module({
-  imports: [configModule, CommonModule, AuthModule],
+  imports: [configModule, CommonModule, AuthModule, PartyModule],
   controllers: [AppController],
   providers: [AppService],
 })

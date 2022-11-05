@@ -31,7 +31,6 @@ model Party {
   type        PartyType
   ott         OttType
   title       String
-  content     String?
   startDate   DateTime  @map("start_date") @db.Date
   endDate     DateTime? @map("end_date") @db.Date
   numOfPeople Int       @default(1) @map("num_of_people")
