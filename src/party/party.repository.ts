@@ -130,4 +130,18 @@ export class PartyRepository {
       },
     });
   }
+
+  async deleteParty(partyId: number): Promise<void> {
+    await this.prisma.participate.deleteMany({
+      where: {
+        partyId,
+      },
+    });
+
+    await this.prisma.party.delete({
+      where: {
+        id: partyId,
+      },
+    });
+  }
 }

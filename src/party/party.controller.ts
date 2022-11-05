@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseIntPipe,
@@ -75,51 +76,63 @@ export class PartyController {
     return this.partyService.getRentalParties(user.id, query);
   }
 
-  @Get('gather/:id')
+  @Get('gather/:partyId')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'id로 파티 모집을 조회합니다.' })
   @ApiOkResponse({ type: GatherDetailDto })
   async getGatherPartyDetail(
     @CurrentUser() user: User,
-    @Param('id', ParseIntPipe) id: number,
+    @Param('partyId', ParseIntPipe) id: number,
   ) {
     return this.partyService.getGatherPartyDetail(user.id, id);
   }
 
-  @Get('rental/:id')
+  @Get('rental/:partyId')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'id로 대여 모집을 조회합니다.' })
   @ApiOkResponse({ type: RentalDetailDto })
   async getRentalPartyDetail(
     @CurrentUser() user: User,
-    @Param('id', ParseIntPipe) id: number,
+    @Param('partyId', ParseIntPipe) id: number,
   ) {
     return this.partyService.getRentalPartyDetail(user.id, id);
   }
 
-  @Post('party/:id/participate')
+  @Post('party/:partyId/participate')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: '모집 또는 대여를 신청합니다.' })
   @ApiNoContentResponse()
   async applyParticipate(
     @CurrentUser() user: User,
-    @Param('id', ParseIntPipe) id: number,
+    @Param('partyId', ParseIntPipe) id: number,
   ) {
     return this.partyService.applyParticipate(user.id, id);
   }
 
-  @Post('participate/:id')
+  @Post('participate/:participateId')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: '모집 또는 대여를 승인합니다.' })
   @ApiNoContentResponse()
   async participate(
     @CurrentUser() user: User,
-    @Param('id', ParseIntPipe) id: number,
+    @Param('participateId', ParseIntPipe) id: number,
   ): Promise<void> {
     return this.partyService.participate(user.id, id);
+  }
+
+  @Delete('party/:partyId')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: '모집 또는 대여를 삭제합니다.' })
+  @ApiNoContentResponse()
+  async deleteParty(
+    @CurrentUser() user: User,
+    @Param('partyId', ParseIntPipe) id: number,
+  ): Promise<void> {
+    return this.partyService.deleteParty(user.id, id);
   }
 }

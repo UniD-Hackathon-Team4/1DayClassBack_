@@ -154,6 +154,21 @@ export class PartyService {
     await this.partyRepository.participate(participateId);
   }
 
+  async deleteParty(userId: number, partyId: number): Promise<void> {
+    const partyData: PartyDetailData | null =
+      await this.partyRepository.getPartyDetail(partyId);
+
+    if (!partyData) {
+      throw new NotFoundException('존재하지 않는 파티입니다.');
+    }
+
+    if (partyData.user.id !== userId) {
+      throw new ConflictException('본인만 파티를 삭제할 수 있습니다');
+    }
+
+    await this.partyRepository.deleteParty(partyId);
+  }
+
   private canParticipate(partyData: PartyDetailData): boolean {
     // 선택된 참여자들만 필터링
     const selectedParticipates = partyData.participate.filter(
