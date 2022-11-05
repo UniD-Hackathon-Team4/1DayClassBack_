@@ -16,7 +16,7 @@ export type PartyDetailData = {
   participate: ParticipateData[];
 };
 
-type ParticipateData = {
+export type ParticipateData = {
   isSelected: boolean;
   user: {
     id: number;

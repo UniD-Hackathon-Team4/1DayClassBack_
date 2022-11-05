@@ -31,6 +31,43 @@ export class PartyRepository {
       where: {
         ott,
         type,
+        isCompleted: false,
+      },
+      select: {
+        id: true,
+        title: true,
+        startDate: true,
+        endDate: true,
+        numOfPeople: true,
+        type: true,
+        cost: true,
+        ott: true,
+        user: {
+          select: {
+            id: true,
+            nickname: true,
+          },
+        },
+        participate: {
+          select: {
+            isSelected: true,
+            user: {
+              select: {
+                id: true,
+                nickname: true,
+                contact: true,
+              },
+            },
+          },
+        },
+      },
+    });
+  }
+
+  async getPartyDetail(id: number): Promise<PartyDetailData | null> {
+    return this.prisma.party.findUnique({
+      where: {
+        id,
       },
       select: {
         id: true,
