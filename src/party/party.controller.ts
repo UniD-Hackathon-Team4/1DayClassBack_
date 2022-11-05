@@ -98,4 +98,28 @@ export class PartyController {
   ) {
     return this.partyService.getRentalPartyDetail(user.id, id);
   }
+
+  @Post('party/:id/participate')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: '모집 또는 대여를 신청합니다.' })
+  @ApiNoContentResponse()
+  async applyParticipate(
+    @CurrentUser() user: User,
+    @Param('id', ParseIntPipe) id: number,
+  ) {
+    return this.partyService.applyParticipate(user.id, id);
+  }
+
+  @Post('participate/:id')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: '모집 또는 대여를 승인합니다.' })
+  @ApiNoContentResponse()
+  async participate(
+    @CurrentUser() user: User,
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<void> {
+    return this.partyService.participate(user.id, id);
+  }
 }

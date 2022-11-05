@@ -9,6 +9,7 @@ export type PartyDetailData = {
   cost: number;
   ott: OttType;
   type: PartyType;
+  isCompleted: boolean;
   user: {
     id: number;
     nickname: string;
@@ -17,6 +18,7 @@ export type PartyDetailData = {
 };
 
 export type ParticipateData = {
+  id: number;
   isSelected: boolean;
   user: {
     id: number;

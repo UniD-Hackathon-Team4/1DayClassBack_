@@ -16,7 +16,7 @@ export class ParticipantDto {
 
   static of(participant: ParticipateData): ParticipantDto {
     return {
-      id: participant.user.id,
+      id: participant.id,
       name: participant.user.nickname,
       isSelected: participant.isSelected,
       contact: participant.user.contact,

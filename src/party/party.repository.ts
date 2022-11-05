@@ -5,6 +5,37 @@ import { PartyType } from '@prisma/client';
 import { OttQuery } from './query/ott.query';
 import { PartyDetailData } from './type/party-detail-data.type';
 
+const commonPartySelect = {
+  id: true,
+  title: true,
+  startDate: true,
+  endDate: true,
+  numOfPeople: true,
+  type: true,
+  cost: true,
+  ott: true,
+  isCompleted: true,
+  user: {
+    select: {
+      id: true,
+      nickname: true,
+    },
+  },
+  participate: {
+    select: {
+      id: true,
+      isSelected: true,
+      user: {
+        select: {
+          id: true,
+          nickname: true,
+          contact: true,
+        },
+      },
+    },
+  },
+};
+
 @Injectable()
 export class PartyRepository {
   constructor(private readonly prisma: PrismaService) {}
@@ -33,34 +64,7 @@ export class PartyRepository {
         type,
         isCompleted: false,
       },
-      select: {
-        id: true,
-        title: true,
-        startDate: true,
-        endDate: true,
-        numOfPeople: true,
-        type: true,
-        cost: true,
-        ott: true,
-        user: {
-          select: {
-            id: true,
-            nickname: true,
-          },
-        },
-        participate: {
-          select: {
-            isSelected: true,
-            user: {
-              select: {
-                id: true,
-                nickname: true,
-                contact: true,
-              },
-            },
-          },
-        },
-      },
+      select: commonPartySelect,
     });
   }
 
@@ -69,31 +73,58 @@ export class PartyRepository {
       where: {
         id,
       },
-      select: {
-        id: true,
-        title: true,
-        startDate: true,
-        endDate: true,
-        numOfPeople: true,
-        type: true,
-        cost: true,
-        ott: true,
-        user: {
-          select: {
-            id: true,
-            nickname: true,
+      select: commonPartySelect,
+    });
+  }
+
+  async getPartyDetailByParticipateId(
+    participateId: number,
+  ): Promise<PartyDetailData | null> {
+    return this.prisma.party.findFirst({
+      where: {
+        participate: {
+          some: {
+            id: participateId,
           },
         },
-        participate: {
-          select: {
-            isSelected: true,
-            user: {
-              select: {
-                id: true,
-                nickname: true,
-                contact: true,
-              },
-            },
+      },
+      select: commonPartySelect,
+    });
+  }
+
+  async setCompleted(partyId: number): Promise<void> {
+    await this.prisma.party.update({
+      where: {
+        id: partyId,
+      },
+      data: {
+        isCompleted: true,
+      },
+    });
+  }
+
+  async participate(participateId: number): Promise<void> {
+    await this.prisma.participate.update({
+      where: {
+        id: participateId,
+      },
+      data: {
+        isSelected: true,
+      },
+    });
+  }
+
+  async applyParticipate(partyId: number, userId: number): Promise<void> {
+    await this.prisma.participate.create({
+      data: {
+        user: {
+          connect: {
+            id: userId,
+          },
+        },
+        party: {
+          connect: {
+            id: partyId,
           },
         },
       },

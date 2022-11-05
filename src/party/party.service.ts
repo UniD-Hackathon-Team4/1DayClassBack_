@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PartyRepository } from './party.repository';
 import { PartyPayload } from './payload/party.payload';
 import { PartyCreateData } from './type/party-create-data.type';
@@ -92,5 +96,88 @@ export class PartyService {
     }
 
     return RentalDetailDto.of(partyData, userId === partyData.user.id);
+  }
+
+  async applyParticipate(userId: number, partyId: number): Promise<void> {
+    const partyData: PartyDetailData | null =
+      await this.partyRepository.getPartyDetail(partyId);
+
+    if (!partyData) {
+      throw new NotFoundException('존재하지 않는 파티입니다.');
+    }
+
+    if (partyData.user.id === userId) {
+      throw new ConflictException('자신이 만든 파티에는 신청할 수 없습니다.');
+    }
+
+    if (
+      partyData.participate.some(
+        (participate) => participate.user.id === userId,
+      )
+    ) {
+      throw new ConflictException('이미 신청한 파티입니다.');
+    }
+
+    if (partyData.isCompleted) {
+      throw new ConflictException('모집이 완료된 파티입니다.');
+    }
+
+    await this.partyRepository.applyParticipate(partyId, userId);
+  }
+
+  async participate(userId: number, participateId: number): Promise<void> {
+    const partyData: PartyDetailData | null =
+      await this.partyRepository.getPartyDetailByParticipateId(participateId);
+
+    if (!partyData) {
+      throw new NotFoundException('존재하지 않는 파티입니다.');
+    }
+
+    if (partyData.participate.some((participate) => participate.isSelected)) {
+      throw new ConflictException('이미 승인된 참가자입니다.');
+    }
+
+    if (partyData.user.id !== userId) {
+      throw new ConflictException('본인만 신청을 승인할 수 있습니다');
+    }
+
+    if (!this.canParticipate(partyData, userId)) {
+      throw new ConflictException('인원이 모두 찼습니다.');
+    }
+
+    // 파티가 완료되었다면 완료처리
+    if (this.checkCompleted(partyData)) {
+      await this.partyRepository.setCompleted(partyData.id);
+    }
+
+    // 참여처리
+    await this.partyRepository.participate(participateId);
+  }
+
+  private canParticipate(partyData: PartyDetailData): boolean {
+    // 선택된 참여자들만 필터링
+    const selectedParticipates = partyData.participate.filter(
+      (participate) => participate.isSelected,
+    );
+
+    // type이 Rental인 경우에는 이미 참여한 사람이 있으면 참여할 수 없다.
+    if (partyData.type === PartyType.RENTAL) {
+      return selectedParticipates.length === 0;
+    }
+
+    // type이 Gather인 경우에는 이미 참여한 사람보다 모집 인원이 많아야 참여할 수 있다.
+    return selectedParticipates.length + 1 < partyData.numOfPeople;
+  }
+
+  private checkCompleted(partyData: PartyDetailData): boolean {
+    const selectedParticipates = partyData.participate.filter(
+      (participate) => participate.isSelected,
+    );
+
+    if (partyData.type === PartyType.RENTAL) {
+      return true;
+    }
+
+    return selectedParticipates.length + 2 === partyData.numOfPeople;
   }
 }
