@@ -92,6 +92,30 @@ export class PartyRepository {
     });
   }
 
+  async getMyGatherParties(userId: number): Promise<PartyDetailData[]> {
+    const madeByMe = await this.prisma.party.findMany({
+      where: {
+        userId,
+        type: PartyType.GATHER,
+      },
+      select: commonPartySelect,
+    });
+
+    const participated = await this.prisma.party.findMany({
+      where: {
+        type: PartyType.GATHER,
+        participate: {
+          some: {
+            userId,
+          },
+        },
+      },
+      select: commonPartySelect,
+    });
+
+    return [...madeByMe, ...participated];
+  }
+
   async setCompleted(partyId: number): Promise<void> {
     await this.prisma.party.update({
       where: {

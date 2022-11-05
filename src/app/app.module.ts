@@ -6,9 +6,10 @@ import { configModule } from '../common/config/config.module';
 import { CommonModule } from '../common/common.module';
 import { AuthModule } from '../auth/auth.module';
 import { PartyModule } from '../party/party.module';
+import { ViewModule } from '../view/view.module';
 
 @Module({
-  imports: [configModule, CommonModule, AuthModule, PartyModule],
+  imports: [configModule, CommonModule, AuthModule, PartyModule, ViewModule],
   controllers: [AppController],
   providers: [AppService],
 })

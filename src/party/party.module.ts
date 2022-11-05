@@ -6,5 +6,6 @@ import { PartyRepository } from './party.repository';
 @Module({
   controllers: [PartyController],
   providers: [PartyService, PartyRepository],
+  exports: [PartyRepository],
 })
 export class PartyModule {}
