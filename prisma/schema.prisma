@@ -1,0 +1,78 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          Int           @id @default(autoincrement())
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+  email       String        @unique
+  nickname    String        @unique
+  password    String
+  contact     String
+  Party       Party[]
+  Participate Participate[]
+
+  @@map("user")
+}
+
+model Party {
+  id          Int       @id @default(autoincrement())
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  type        PartyType
+  ott         OttType
+  title       String
+  content     String?
+  startDate   DateTime  @map("start_date") @db.Date
+  endDate     DateTime? @map("end_date") @db.Date
+  numOfPeople Int       @default(1) @map("num_of_people")
+  cost        Int
+  isCompleted Boolean   @default(false) @map("is_completed")
+  userId      Int       @map("user_id")
+
+  user        User          @relation(fields: [userId], references: [id])
+  Participate Participate[]
+
+  @@map("party")
+}
+
+model Participate {
+  id         Int      @id @default(autoincrement())
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+  partyId    Int      @map("party_id")
+  userId     Int      @map("user_id")
+  isSelected Boolean  @default(false) @map("is_selected")
+
+  party Party @relation(fields: [partyId], references: [id])
+  user  User  @relation(fields: [userId], references: [id])
+
+  @@map("participate")
+}
+
+enum PartyType {
+  GATHER // 모집
+  RENTAL // 대여
+
+  @@map("party_type")
+}
+
+enum OttType {
+  NETFLIX
+  WATCHA
+  WAVVE
+  APPLETV
+  TVING
+  DISNEYPLUS
+
+  @@map("ott_type")
+}
