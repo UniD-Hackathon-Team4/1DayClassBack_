@@ -141,7 +141,7 @@ export class PartyService {
       throw new ConflictException('본인만 신청을 승인할 수 있습니다');
     }
 
-    if (!this.canParticipate(partyData, userId)) {
+    if (!this.canParticipate(partyData)) {
       throw new ConflictException('인원이 모두 찼습니다.');
     }
 
