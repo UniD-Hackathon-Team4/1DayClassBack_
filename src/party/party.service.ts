@@ -3,6 +3,10 @@ import { PartyRepository } from './party.repository';
 import { PartyPayload } from './payload/party.payload';
 import { PartyCreateData } from './type/party-create-data.type';
 import { PartyType } from '@prisma/client';
+import { OttQuery } from './query/ott.query';
+import { GatherDetailsDto } from './dto/gather-detail.dto';
+import { PartyDetailData } from './type/party-detail-data.type';
+import { RentalDetailsDto } from './dto/rental-detail.dto';
 
 @Injectable()
 export class PartyService {
@@ -34,5 +38,29 @@ export class PartyService {
     };
 
     return this.partyRepository.createParty(userId, createData);
+  }
+
+  async getGatherParties(
+    userId: number,
+    query: OttQuery,
+  ): Promise<GatherDetailsDto> {
+    const partyData: PartyDetailData[] = await this.partyRepository.getParties(
+      query,
+      PartyType.GATHER,
+    );
+
+    return GatherDetailsDto.of(partyData, userId);
+  }
+
+  async getRentalParties(
+    userId: number,
+    query: OttQuery,
+  ): Promise<RentalDetailsDto> {
+    const partyData: PartyDetailData[] = await this.partyRepository.getParties(
+      query,
+      PartyType.RENTAL,
+    );
+
+    return RentalDetailsDto.of(partyData, userId);
   }
 }
